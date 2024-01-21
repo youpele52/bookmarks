@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email String @unique
+  hash  String //password
+
+  firstName String?
+  lastName  String?
+  // by default it will be Bookmark, but we changed Bookmark to bookmarks
+  bookmarks Bookmark[]
+
+  @@map("users")
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  description String?
+  link        String
+
+  // the relationship between User and Bookmarks
+  // one to many, one user multiple bookmarks
+
+  userId Int
+  // field local to this table ie userId in Bookmark
+  // references points to the id in User table
+  // onDelete: Cascade, means when the parent ie User is deleted 
+  // then the Boookmark should also be deleted esp if tghis is a db clean up using scripts
+  user   User @relation(references: [id], fields: [userId] )
+
+  @@map("bookmarks")
+}
